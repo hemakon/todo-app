@@ -1,17 +1,17 @@
-name: Build and deploy .NET Core application to Web App todo-app-linux
+name: Build and deploy .NET Core application to Web App todo-app
 on:
   push:
     branches:
     - main
 env:
-  AZURE_WEBAPP_NAME: todo-app-linux
-  AZURE_WEBAPP_PACKAGE_PATH: todo-app/published
+  AZURE_WEBAPP_NAME: todo-app
+  AZURE_WEBAPP_PACKAGE_PATH: todo-app\published
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
   WORKING_DIRECTORY: todo-app
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET SDK
@@ -32,7 +32,7 @@ jobs:
         name: webapp
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     steps:
     - name: Download artifact from build job
