@@ -1,0 +1,46 @@
+name: .NET Core Azure Web App Deploy
+
+on:
+  push:
+    branches:
+      - master  # Or your deployment branch
+
+env:
+  AZURE_WEBAPP_NAME: todo-app-linux  # Replace with your Azure App Service name
+  DOTNET_VERSION: '8.x'  # .NET SDK version to use
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./publish --no-build
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}  # Azure service principal credentials stored in GitHub secrets
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
+        package: ./publish
+
+    - name: Logout from Azure CLI
+      run: az logout
